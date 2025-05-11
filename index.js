@@ -1,7 +1,11 @@
 // repo: https://github.com/Johannes613/HMS_Backend.git
 const express = require('express');
+require('dotenv').config();
 const app = express();
 const PORT = 3000;
+const cors=require('cors');
+
+app.use(cors());// Enable CORS for all routes
 
 app.use(express.json());
 
