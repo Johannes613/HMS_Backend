@@ -4,16 +4,16 @@ import 'dotenv/config';
 const app = express();
 const PORT = 3000;
 import cors from 'cors';
-import db from './models/db.js';
 import trendRouter from './routes/patientVisitTrend.js';
 import medicationRouter from './routes/medicationStat.js';
+import router from './routes/fourSix.js';
 app.use(cors());// Enable CORS for all routes
 
 
 app.use(express.json());
 app.use('/trendData', trendRouter);
 app.use('/medicationData', medicationRouter);
-
+app.use("/four-six",router);
 
  
 app.listen(PORT, () => {
