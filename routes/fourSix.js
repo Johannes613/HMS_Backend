@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import db from "../model/db.js";
+import db from "../models/db.js";
 
 // a route to fetch top 2 doctors by number of patients seen in the past year.
 router.get("/top-doctors", async (req, res) => {

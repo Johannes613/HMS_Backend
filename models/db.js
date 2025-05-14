@@ -1,5 +1,5 @@
-require('dotenv').config();
-const mysql = require('mysql2');
+import 'dotenv/config';
+import mysql from 'mysql2/promise';
 
 const db = mysql.createPool({
     host: process.env.DB_HOST,
@@ -10,4 +10,4 @@ const db = mysql.createPool({
     connectionLimit: process.env.DB_CONNECTION_LIMIT,
 });
 
-module.exports = db;
+export default db;
