@@ -11,7 +11,7 @@ app.use(cors());// Enable CORS for all routes
 
 
 app.use(express.json());
-app.use('/trendData', trendRouter);<s></s>
+app.use('/trendData', trendRouter);
 app.use('/medicationData', medicationRouter);
 
 
