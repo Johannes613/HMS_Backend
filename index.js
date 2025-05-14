@@ -9,7 +9,6 @@ import router from './routes/fourSix.js';
 import appointmentStatRouter from './routes/appointmentStat.js';
 import medicationRouter from "./routes/medicationStat.js";
 import appRouter from "./routes/appointment.js";
-
 import medicalRecordRouter from "./routes/medicalRecord.js";
 app.use(cors()); // Enable CORS for all routes
 
