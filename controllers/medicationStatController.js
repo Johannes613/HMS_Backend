@@ -1,6 +1,8 @@
 import db from '../models/db.js';
 
 const getMedicationStat = async (req, res) => {
+    let startDate = '2020-10-03';
+    let endDate = '2023-10-05';
     const query =`select 
 	supp.supplier_name as supplier_name,
     med.drug_name as drug_name
@@ -8,7 +10,7 @@ const getMedicationStat = async (req, res) => {
     medication med
     join inventory invt on med.drug_id = invt.drug_id
     join supplier supp on supp.supp_id = invt.supp_id
-    where  supp.supplier_name = 'Gulf Pharma'and med.supplied_date between date('2020-10-03') and date('2023-10-05');`
+    where  supp.supplier_name = 'Gulf Pharma'and med.supplied_date between date(${startDate}) and date(${endDate});`
 
     try{
         const [rows] = await db.query(query);

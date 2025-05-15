@@ -19,7 +19,6 @@ where appt.appt_date >= date_sub(curdate(),interval 3 year)
 group by dept_name,visit_month,gender,age_group
 order by visit_year desc;`;
 
-  // const query= `SELECT NOW() AS current_time;`;
   try {
     const [rows] = await db.query(query);
     console.log("Fetched patient visit trend:", rows);
