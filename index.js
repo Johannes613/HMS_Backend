@@ -10,6 +10,7 @@ import router from "./routes/fourSix.js";
 import appRouter from "./routes/appointment.js";
 
 import medicalRecordRouter from "./routes/medicalRecord.js";
+import suppliersRouter from "./routes/suppliers.js";
 app.use(cors()); // Enable CORS for all routes
 
 app.use(express.json());
@@ -20,7 +21,8 @@ app.use("/four-six", router);
 app.use("/appointment", appRouter);
 // fetching medical record data for a specific patient
 app.use("/medicalRecord", medicalRecordRouter);
-
+// fetching suppliers data
+app.use("/suppliers", suppliersRouter);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
