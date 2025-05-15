@@ -66,6 +66,43 @@ count(*) as count  from appointment appt where appt.status = "Completed";`;
     res.status(500).json({ error: "Internal server error while fetching" });
   }
 };
+const getCanceled = async (req, res) => {
+  const query = `select 
+appt_date, reason from appointment appt where appt.status = "Canceled";`;
+
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched completed", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching completed:", error);
+    res.status(500).json({ error: "Internal server error while fetching" });
+  }
+};
+const getUpcoming = async (req, res) => {
+  const query = `select count(*) as count from appointment where status = "Scheduled";`;
+
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched completed", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching completed:", error);
+    res.status(500).json({ error: "Internal server error while fetching" });
+  }
+};
+const getFullMedicalRecords = async (req, res) => {
+  const query = `select count(*) as count from medical_record`;
+
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched completed", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching completed:", error);
+    res.status(500).json({ error: "Internal server error while fetching" });
+  }
+};
 
 const getApptFullList = async (req, res) => {
   const { appt_date, appt_status } = req.body;
@@ -79,6 +116,32 @@ const getApptFullList = async (req, res) => {
 	from doctor doc 
     join appointment appt on appt.doc_id = doc.doc_id
     join patient pat on pat.patient_id = appt.patient_id
+    where appt.appt_date >= '${appt_date}'`;
+
+  if (appt_status && appt_status !== "all") {
+    query += ` and appt.status = '${appt_status}'`;
+  }
+
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched appointment full list", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching appointment full list:", error);
+    res.status(500).json({ error: "Internal server error while fetching" });
+  }
+};
+const getAdminApptList = async (req, res) => {
+  const { appt_date, appt_status } = req.body;
+
+  let query = `select 
+	pat.patient_name as patient_name,
+    appt.time as appt_time,
+    appt.appt_date as appt_date,
+    appt.appt_id as appt_id,
+    appt.status as appt_status
+	from patient pat
+    join appointment appt on appt.patient_id = pat.patient_id
     where appt.appt_date >= '${appt_date}'`;
 
   if (appt_status && appt_status !== "all") {
@@ -161,5 +224,9 @@ export {
   getAllPatients,
   getAllRecords,
   getCompletedAppt,
-  getLastWeekLsit
+  getLastWeekLsit,
+  getCanceled,
+  getAdminApptList,
+  getUpcoming,
+  getFullMedicalRecords
 };
