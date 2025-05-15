@@ -94,6 +94,34 @@ router.get("/", async (req, res) => {
     res.status(500).send("Error fetching doctors");
   }
 });
+// fetch all patients
+router.get("/patients", async (req, res) => {
+  let q;
+  if (req.query.age == "all" && req.query.gender == "all") {
+    q = "SELECT * FROM patient";
+  } else if (req.query.age == "all" && req.query.gender == "male") {
+    q = `SELECT * FROM patient where gender='male'`;
+  } else if (req.query.age == "all" && req.query.gender == "female") {
+    q = `SELECT * FROM patient where gender='female'`;
+  } else if (req.query.age != "all" && req.query.gender == "all") {
+    q = `SELECT * FROM patient where age >=${parseInt(req.query.age)}`;
+  } else if (req.query.age != "all" && req.query.gender != "all") {
+    q = `SELECT * FROM patient where age >=${parseInt(
+      req.query.age
+    )} and gender='${req.query.gender}'`;
+  }
 
+  try {
+    const [result] = await db.query(q);
+    console.log(result);
+    if (result.length === 0) {
+      return res.status(404).send("No patients found");
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    res.status(500).send("Error fetching patients");
+  }
+});
 // now export the router
 export default router;
