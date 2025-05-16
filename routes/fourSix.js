@@ -152,6 +152,22 @@ router.get("/patients/by-gender", async (req, res) => {
     console.error("Error fetching patients");
   }
 });
+//select treatment procedures grouping by month name
+router.get("/treatment-procedures", async (req, res) => {
+  const query = `select description, monthname(date) as Month_Name,Count(description) as count
+from treatment_procedure group by monthname(date),description
+order by monthname(date);`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No treatment procedures found");
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching treatment procedures:", error);
+    res.status(500).send("Error fetching treatment procedures");
+  }
+});
 
 // now export the router
 
