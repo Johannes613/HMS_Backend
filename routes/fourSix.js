@@ -113,7 +113,7 @@ router.get("/patients", async (req, res) => {
 
   try {
     const [result] = await db.query(q);
-    console.log(result);
+
     if (result.length === 0) {
       return res.status(404).send("No patients found");
     }
@@ -123,5 +123,36 @@ router.get("/patients", async (req, res) => {
     res.status(500).send("Error fetching patients");
   }
 });
+
+//fetch patients by grouping by age
+router.get("/patients/age", async (req, res) => {
+  const query = `SELECT age,COUNT(*) AS count FROM patient GROUP BY age`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No patients found");
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching patients by age:", error);
+    res.status(500).send("Error fetching patients by age");
+  }
+});
+
+//fetch patients by grouping in gender
+router.get("/patients/by-gender", async (req, res) => {
+  const query = `SELECT gender,COUNT(*) AS count FROM patient GROUP BY gender`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No patients found");
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching patients");
+  }
+});
+
 // now export the router
+
 export default router;
