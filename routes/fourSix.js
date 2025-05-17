@@ -154,18 +154,38 @@ router.get("/patients/by-gender", async (req, res) => {
 });
 //select treatment procedures grouping by month name
 router.get("/treatment-procedures", async (req, res) => {
+  const year = req.query.year;
+  console.log(req.query);
   const query = `select description, monthname(date) as Month_Name,Count(description) as count
-from treatment_procedure group by monthname(date),description
+from treatment_procedure where year(date)=${year} group by monthname(date),description
 order by monthname(date);`;
   try {
     const [result] = await db.query(query);
-    if (result.length === 0) {
-      return res.status(404).send("No treatment procedures found");
-    }
-    res.json(result);
+    // if (result.length === 0) {
+    //   return res.status(404).send("No treatment procedures found");
+    // }
+    res.status(200).json(result);
   } catch (error) {
     console.error("Error fetching treatment procedures:", error);
     res.status(500).send("Error fetching treatment procedures");
+  }
+});
+
+// fetch all inventory along with medication and supplier
+router.get("/inventory", async (req, res) => {
+  const query = `select s.supplier_name,m.drug_name,i.supplied_date,i.expiration_date,i.quantity,i.invent_id
+from inventory as i join medication as m on m.drug_id=i.drug_id
+join supplier as s on s.supp_id=i.supp_id
+order by supplied_date;`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No inventory found");
+    }
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching inventory:", error);
+    res.status(500).send("Error fetching inventory");
   }
 });
 
