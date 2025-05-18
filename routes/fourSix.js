@@ -205,5 +205,25 @@ order by month(i.supplied_date);`;
   }
 });
 
+//fetch drug name,supplier name, and patients who used the drug between two dates
+router.get("/medication-used-between", async (req, res) => {
+  const startDate = req.query.startDate;
+  const endDate = req.query.endDate;
+  const supplierName = req.query.supplierName;
+  const query = `SELECT DISTINCT
+  m.drug_id,
+  m.drug_name,
+  p.patient_name,
+  s.supplier_name,
+  t.date
+FROM medication AS m
+JOIN inventory AS i ON i.drug_id = m.drug_id
+JOIN supplier AS s ON i.supp_id = s.supp_id
+JOIN treatment_procedure AS t ON t.drug_id = m.drug_id
+JOIN patient AS p ON p.patient_id = t.patient_id
+WHERE s.supplier_name = '${supplierName}'
+AND t.date BETWEEN '${startDate}' AND '${endDate}';`;
+});
+
 // now export the router
 export default router;
