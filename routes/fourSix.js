@@ -55,16 +55,14 @@ HAVING COUNT(*) = (
 
 // 6.	Identify the supplier whose items stayed in inventory the longest on average.
 router.get("/longest-inventory", async (req, res) => {
-  let limit = 1;
-  let order = "DESC";
+  let limit = req.query.limit || 1;
+  let order = req.query.order || "asc";
   const query = `
-    SELECT s.supplier_name, AVG(DATEDIFF(i.expiration_date, m.supplied_date)) AS avg_duration_days
-FROM Inventory i
-JOIN Medication m ON i.drug_id = m.drug_id
-JOIN Supplier s ON i.supp_id = s.supp_id
-GROUP BY s.supp_id, s.supplier_name
-ORDER BY avg_duration_days ${order}
-LIMIT ${limit};
+select m.drug_name,s.supplier_name,s.supp_id,i.supplied_date,round(TIMESTAMPDIFF(DAY, i.supplied_date, CURDATE())/30) as duration
+from inventory as i join medication as m on i.drug_id=m.drug_id
+join supplier as s on s.supp_id=i.supp_id
+order by i.supplied_date ${order}
+limit ${limit};
     `;
 
   try {
