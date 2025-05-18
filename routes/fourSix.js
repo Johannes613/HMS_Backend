@@ -55,16 +55,14 @@ HAVING COUNT(*) = (
 
 // 6.	Identify the supplier whose items stayed in inventory the longest on average.
 router.get("/longest-inventory", async (req, res) => {
-  let limit = 1;
-  let order = "DESC";
+  let limit = req.query.limit || 1;
+  let order = req.query.order || "asc";
   const query = `
-    SELECT s.supplier_name, AVG(DATEDIFF(i.expiration_date, m.supplied_date)) AS avg_duration_days
-FROM Inventory i
-JOIN Medication m ON i.drug_id = m.drug_id
-JOIN Supplier s ON i.supp_id = s.supp_id
-GROUP BY s.supp_id, s.supplier_name
-ORDER BY avg_duration_days ${order}
-LIMIT ${limit};
+select m.drug_name,s.supplier_name,s.supp_id,i.supplied_date,round(TIMESTAMPDIFF(DAY, i.supplied_date, CURDATE())/30) as duration
+from inventory as i join medication as m on i.drug_id=m.drug_id
+join supplier as s on s.supp_id=i.supp_id
+order by i.supplied_date ${order}
+limit ${limit};
     `;
 
   try {
@@ -188,7 +186,53 @@ order by supplied_date;`;
     res.status(500).send("Error fetching inventory");
   }
 });
+// fetch medication grouped by type, counting the number of medications in each type supplied per month
+router.get("/supply-trend", async (req, res) => {
+  const year = req.query.year;
+  const query = `select monthname(i.supplied_date) as month,sum(i.quantity) as total_supply,m.drug_name as Drug_Name
+from inventory as i join medication as m on m.drug_id=i.drug_id where year(i.supplied_date)=${year}
+group by monthname(i.supplied_date),m.drug_name
+order by month(i.supplied_date);`;
+
+  try {
+    const [result] = await db.query(query);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching supply trend:", error);
+    res.status(500).send("Error fetching supply trend");
+  }
+});
+
+//fetch drug name,supplier name, and patients who used the drug between two dates
+router.get("/medication-used-between", async (req, res) => {
+  const startDate = req.query.startDate;
+  const endDate = req.query.endDate;
+  const supplierName = req.query.supplierName;
+  const query = `SELECT DISTINCT
+  m.drug_id,
+  m.drug_name,
+  p.patient_name,
+  s.supplier_name,
+  t.date
+FROM medication AS m
+JOIN inventory AS i ON i.drug_id = m.drug_id
+JOIN supplier AS s ON i.supp_id = s.supp_id
+JOIN treatment_procedure AS t ON t.drug_id = m.drug_id
+JOIN patient AS p ON p.patient_id = t.patient_id
+WHERE s.supplier_name = '${supplierName}'
+AND t.date BETWEEN '${startDate}' AND '${endDate}';`;
+  try {
+    const [result] = await db.query(query);
+    // if (result.length === 0) {
+    //   return res.status(404).send("No medications found");
+    // }
+    res.json(result);
+    console.log(result);
+  } catch (error) {
+    console.error("Error fetching medication used between dates:", error);
+    res.status(500).send("Error fetching medication used between dates");
+  }
+});
 
 // now export the router
-
 export default router;
