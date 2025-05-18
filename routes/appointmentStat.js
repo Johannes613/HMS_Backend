@@ -11,7 +11,7 @@ import {
   getCanceled,
   getAdminApptList,
   getUpcoming,
-  getFullMedicalRecords
+getFullMedicalRecords,
 } from "../controllers/appointmentController.js";
 
 const appointmentStatRouter = express.Router();
