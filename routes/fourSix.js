@@ -188,7 +188,22 @@ order by supplied_date;`;
     res.status(500).send("Error fetching inventory");
   }
 });
+// fetch medication grouped by type, counting the number of medications in each type supplied per month
+router.get("/supply-trend", async (req, res) => {
+  const year = req.query.year;
+  const query = `select monthname(i.supplied_date) as month,sum(i.quantity) as total_supply,m.drug_name as Drug_Name
+from inventory as i join medication as m on m.drug_id=i.drug_id where year(i.supplied_date)=${year}
+group by monthname(i.supplied_date),m.drug_name
+order by month(i.supplied_date);`;
+
+  try {
+    const [result] = await db.query(query);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching supply trend:", error);
+    res.status(500).send("Error fetching supply trend");
+  }
+});
 
 // now export the router
-
 export default router;
