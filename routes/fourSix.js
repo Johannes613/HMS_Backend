@@ -223,6 +223,17 @@ JOIN treatment_procedure AS t ON t.drug_id = m.drug_id
 JOIN patient AS p ON p.patient_id = t.patient_id
 WHERE s.supplier_name = '${supplierName}'
 AND t.date BETWEEN '${startDate}' AND '${endDate}';`;
+  try {
+    const [result] = await db.query(query);
+    // if (result.length === 0) {
+    //   return res.status(404).send("No medications found");
+    // }
+    res.json(result);
+    console.log(result);
+  } catch (error) {
+    console.error("Error fetching medication used between dates:", error);
+    res.status(500).send("Error fetching medication used between dates");
+  }
 });
 
 // now export the router
