@@ -12,11 +12,13 @@ import {
   getAdminApptList,
   getUpcoming,
 getFullMedicalRecords,
+getApptPassed
 } from "../controllers/appointmentController.js";
 
 const appointmentStatRouter = express.Router();
 appointmentStatRouter.post("/appointmentDetails", getAppointmentList);
 appointmentStatRouter.post("/appointmentFullList", getApptFullList);
+appointmentStatRouter.get("/appointmentpassed", getApptPassed);
 appointmentStatRouter.post("/allPatients", getAllPatients);
 appointmentStatRouter.post("/allRecords", getAllRecords);
 appointmentStatRouter.get("/totalPatients", getTotalPatients);
