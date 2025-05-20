@@ -32,5 +32,25 @@ const getPatientVisitTrend = async (req, res) => {
     res.status(500).json({ error: "Internal server error while fetching aggregated visits" });
   }
 };
+const getPatientInfo = async (req, res) => {
+  const query = `SELECT 
+  pat.patient_fname AS first_name,
+  pat.patient_lname AS last_name,
+  pat.insurance AS insurance_name,
+  ins.insurance_rate AS insurance_coverage
+FROM patient pat
+JOIN insurance ins ON pat.insurance_id = ins.insurance_id
+WHERE pat.patient_id = 114;`;
 
-export default getPatientVisitTrend;
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched aggregated visit data:", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching aggregated patient data:", error);
+    res.status(500).json({ error: "Internal server error while fetching aggregated visits" });
+  }
+
+}
+
+export {getPatientVisitTrend,getPatientInfo};
