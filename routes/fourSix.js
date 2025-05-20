@@ -233,6 +233,47 @@ AND t.date BETWEEN '${startDate}' AND '${endDate}';`;
     res.status(500).send("Error fetching medication used between dates");
   }
 });
-
+// register patient
+router.post("/register-patient", async (req, res) => {
+  console.log(req.body);
+  const {
+    firstName,
+    lastName,
+    gender,
+    email,
+    phone,
+    birthDate,
+    insuranceProvider,
+    password,
+  } = req.body;
+  const query = `INSERT INTO patient (first_name, last_name,gender,email,phone,birth_date,insurance_provider,password)
+ VALUES ('${firstName}', '${lastName}','${gender}','${email}','${phone}','${birthDate}','${insuranceProvider}','${password}')`;
+  try {
+    const [result] = await db.query(query);
+    if (result.affectedRows === 0) {
+      return res.status(404).send("No patients found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    res.status(500).send("Error fetching patients");
+  }
+});
 // now export the router
+
+// authenticate logged in user
+router.post("/login", async (req, res) => {
+  const { email, password, userType } = req.body;
+  const query = `SELECT * FROM ${userType} WHERE email='${email}' AND password='${password}'`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No patients found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    res.status(500).send("Error fetching patients");
+  }
+});
 export default router;
