@@ -6,11 +6,11 @@ import db from "../models/db.js";
 router.get("/top-doctors", async (req, res) => {
   let top = 2;
   const query = `
-SELECT d.doc_name, COUNT(DISTINCT a.patient_id) AS patient_count
+SELECT d.doc_fname, COUNT(DISTINCT a.patient_id) AS patient_count
 FROM doctor d
 JOIN appointment a ON d.doc_id = a.doc_id
 WHERE a.appt_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
-GROUP BY d.doc_id, d.doc_name
+GROUP BY d.doc_id, d.doc_fname
 ORDER BY patient_count DESC
 LIMIT ${top};
   `;
@@ -211,7 +211,7 @@ router.get("/medication-used-between", async (req, res) => {
   const query = `SELECT DISTINCT
   m.drug_id,
   m.drug_name,
-  p.patient_name,
+  p.patient_fname,
   s.supplier_name,
   t.date
 FROM medication AS m

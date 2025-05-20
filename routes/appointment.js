@@ -9,7 +9,7 @@ appRouter.get("/:id", async (req, res) => {
   const patientId = req.params.id;
   console.log(patientId);
   console.log(req.params);
-  const query = `select a.appt_date,a.appt_id,d.doc_name,a.status,p.patient_name
+  const query = `select a.appt_date,a.appt_id,d.doc_fname,a.status,p.patient_fname
 from appointment as a
 join doctor as d on a.doc_id=d.doc_id
 join patient p on p.patient_id=a.patient_id
