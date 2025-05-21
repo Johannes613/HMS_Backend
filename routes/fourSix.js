@@ -244,10 +244,12 @@ router.post("/register-patient", async (req, res) => {
     phone,
     birthDate,
     insuranceProvider,
-    password,
+    age,
   } = req.body;
-  const query = `INSERT INTO patient (first_name, last_name,gender,email,phone,birth_date,insurance_provider,password)
- VALUES ('${firstName}', '${lastName}','${gender}','${email}','${phone}','${birthDate}','${insuranceProvider}','${password}')`;
+  const query = `INSERT INTO patient (patient_fname, patient_lname,gender,age,phone_num,email,insurance,birth_date)
+
+ VALUES ('${firstName}', '${lastName}','${gender}','${age}','${phone}','${email}','${insuranceProvider}','${birthDate}')`;
+
   try {
     const [result] = await db.query(query);
     if (result.affectedRows === 0) {
@@ -260,15 +262,25 @@ router.post("/register-patient", async (req, res) => {
   }
 });
 // now export the router
-
 // authenticate logged in user
 router.post("/login", async (req, res) => {
-  const { email, password, userType } = req.body;
-  const query = `SELECT * FROM ${userType} WHERE email='${email}' AND password='${password}'`;
+  const { email,userType } = req.body;
+  console.log(email,userType);
+
+  let query;
+  if (userType == "patient") {
+    query = `SELECT * FROM patient WHERE email='${email}'`;
+  } else if (userType == "doctor") {
+    query = `SELECT * FROM doctor WHERE email='${email}'`;
+  } else {
+    console.log(" something went wrong");
+  }
+
   try {
     const [result] = await db.query(query);
+    console.log(result);
     if (result.length === 0) {
-      return res.status(404).send("No patients found");
+      return res.status(404).send("No user found");
     }
     res.status(200).json(result);
   } catch (error) {
