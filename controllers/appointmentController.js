@@ -188,6 +188,32 @@ const getApptFullList = async (req, res) => {
     res.status(500).json({ error: "Internal server error while fetching" });
   }
 };
+const getApptPassed = async (req, res) => {
+
+  let query = `
+    SELECT 
+      pat.patient_fname AS patient_fname,
+      appt.time AS appt_time,
+      appt.appt_date AS appt_date,
+      appt.appt_id AS appt_id,
+      appt.status AS appt_status
+    FROM doctor doc
+    JOIN appointment appt ON appt.doc_id = doc.doc_id
+    JOIN patient pat ON pat.patient_id = appt.patient_id
+    WHERE appt.appt_date <= '2025-07-12' limit 4
+  `;
+
+
+  try {
+    const [rows] = await db.query(query);
+    console.log("Fetched appointment full list", rows);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error fetching appointment full list:", error);
+    res.status(500).json({ error: "Internal server error while fetching" });
+  }
+};
+
 
 const getAdminApptList = async (req, res) => {
   const { appt_date, appt_status } = req.body;
@@ -249,7 +275,34 @@ const getAllPatients = async (req, res) => {
 };
 
 const getAllRecords = async (req, res) => {
-  const { rec_id, patient_id, patient_name } = req.body;
+  const { rec_id, patient_id, patient_fname } = req.body;
+
+  // Whitelist of allowed sort columns
+  const allowedColumns = {
+    rec_id: 'med.record_id',
+    patient_id: 'pat.patient_id',
+    patient_fname: 'pat.patient_fname'
+  };
+
+  const parseSortParam = (param) => {
+    if (!param) return null;
+    
+    const [column, direction] = param.split(' ');
+    const allowedDirection = ['asc', 'desc'].includes(direction?.toLowerCase()) 
+      ? direction.toLowerCase() 
+      : 'asc';
+    
+    if (allowedColumns[column]) {
+      return `${allowedColumns[column]} ${allowedDirection}`;
+    }
+    return null;
+  };
+
+  const orderFields = [
+    parseSortParam(rec_id),
+    parseSortParam(patient_id),
+    parseSortParam(patient_fname)
+  ].filter(Boolean);
 
   let query = `
     SELECT 
@@ -262,11 +315,6 @@ const getAllRecords = async (req, res) => {
     JOIN doctor doc ON doc.doc_id = med.doc_id
     JOIN patient pat ON pat.patient_id = med.patient_id
   `;
-
-  const orderFields = [];
-  if (rec_id) orderFields.push("med.record_id");
-  if (patient_id) orderFields.push("pat.patient_id");
-  if (patient_name) orderFields.push("pat.patient_fname");
 
   if (orderFields.length > 0) {
     query += ` ORDER BY ${orderFields.join(", ")}`;
@@ -281,7 +329,6 @@ const getAllRecords = async (req, res) => {
     res.status(500).json({ error: "Internal server error while fetching" });
   }
 };
-
 export {
   getAppointmentList,
   getTotalPatients,
@@ -294,5 +341,6 @@ export {
   getAdminApptList,
   getUpcoming,
   getFullMedicalRecords,
-  getTrendForVisits
+  getTrendForVisits,
+  getApptPassed
 };

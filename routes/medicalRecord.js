@@ -9,7 +9,7 @@ medicalRecordRouter.get("/:id", async (req, res) => {
   const patientId = req.params.id;
   console.log(patientId);
   const query = `
-    select p.patient_name,d.doc_name,t.date,t.description,
+    select p.patient_fname,d.doc_fname,t.date,t.description,
 m.diagnosis
 from medical_record as m join patient as p on p.patient_id=m.patient_id
 join treatment_procedure as t on t.treatment_code=m.treatment_code
