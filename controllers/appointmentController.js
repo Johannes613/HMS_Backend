@@ -110,7 +110,7 @@ const getCanceled = async (req, res) => {
   const query = `
     SELECT appt_date, reason 
     FROM appointment 
-    WHERE status = 'Canceled';
+    WHERE status = 'Cancelled';
   `;
 
   try {
