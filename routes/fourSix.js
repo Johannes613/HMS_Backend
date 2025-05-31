@@ -189,10 +189,18 @@ order by supplied_date;`;
 // fetch medication grouped by type, counting the number of medications in each type supplied per month
 router.get("/supply-trend", async (req, res) => {
   const year = req.query.year;
-  const query = `select monthname(i.supplied_date) as month,sum(i.quantity) as total_supply,m.drug_name as Drug_Name
-from inventory as i join medication as m on m.drug_id=i.drug_id where year(i.supplied_date)=${year}
-group by monthname(i.supplied_date),m.drug_name
-order by month(i.supplied_date);`;
+  const query = `
+  SELECT 
+    MONTH(i.supplied_date) AS month_num,
+    MONTHNAME(i.supplied_date) AS month,
+    SUM(i.quantity) AS total_supply,
+    m.drug_name AS Drug_Name
+  FROM inventory AS i
+  JOIN medication AS m ON m.drug_id = i.drug_id
+  WHERE YEAR(i.supplied_date) = ${year}
+  GROUP BY month_num, month, m.drug_name
+  ORDER BY month_num
+`;
 
   try {
     const [result] = await db.query(query);
@@ -286,6 +294,24 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Error fetching patients:", error);
     res.status(500).send("Error fetching patients");
+  }
+});
+
+
+
+//get appointment data for a specific doctor
+router.get("/doctor-appointments/:docId", async (req, res) => {
+  const docId = req.params.docId;
+  const query = `SELECT * FROM appointment WHERE doc_id=${docId}`;
+  try {
+    const [result] = await db.query(query);
+    if (result.length === 0) {
+      return res.status(404).send("No appointments found for this doctor");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching doctor appointments:", error);
+    res.status(500).send("Error fetching doctor appointments");
   }
 });
 export default router;

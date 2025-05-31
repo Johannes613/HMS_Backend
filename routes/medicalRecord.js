@@ -9,12 +9,12 @@ medicalRecordRouter.get("/:id", async (req, res) => {
   const patientId = req.params.id;
   console.log(patientId);
   const query = `
-    select p.patient_fname,d.doc_fname,t.date,t.description,
+    select p.patient_fname,d.doc_fname,p.patient_lname,t.date,t.description,
 m.diagnosis
 from medical_record as m join patient as p on p.patient_id=m.patient_id
 join treatment_procedure as t on t.treatment_code=m.treatment_code
 join doctor as d on d.doc_id=m.doc_id
-where p.patient_id=2;
+where p.patient_id = '${patientId}';
     `;
   try {
     const [rows] = await db.query(query);
@@ -26,5 +26,7 @@ where p.patient_id=2;
   }
   console.log("Fetching medical record data for patient ID:", patientId);
 });
+
+
 
 export default medicalRecordRouter;

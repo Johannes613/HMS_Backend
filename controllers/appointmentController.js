@@ -329,6 +329,7 @@ const getAllRecords = async (req, res) => {
     res.status(500).json({ error: "Internal server error while fetching" });
   }
 };
+
 export {
   getAppointmentList,
   getTotalPatients,
